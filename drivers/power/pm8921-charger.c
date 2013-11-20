@@ -1947,10 +1947,29 @@ static int pm_chg_usb_trim(struct pm8921_chg_chip *chip, int index)
 #define PM8921_CHG_IUSB_MAX  7
 #define PM8921_CHG_IUSB_MIN  0
 #define PM8917_IUSB_FINE_RES BIT(0)
+
+/* OPPO 2013-11-06 Wangjc Add begin for solve N1 problem. */
+#ifdef CONFIG_VENDOR_EDIT
+static int iusb_counter = 0x00;
+#endif /*CONFIG_VENDOR_EDIT*/
+
 static int pm_chg_iusbmax_set(struct pm8921_chg_chip *chip, int index)
 {
 	u8 temp, fineres, reg_val;
 	int rc;
+/* OPPO 2013-11-06 Wangjc Add begin for solve N1 problem. */
+#ifdef CONFIG_VENDOR_EDIT
+	if(index == 2)
+	{
+		if(iusb_counter==0)
+		{
+			iusb_counter=10;
+		}
+
+		if(iusb_counter!=5)
+			return 0;
+	}
+#endif /*CONFIG_VENDOR_EDIT*/
 
 	reg_val = usb_ma_table[index].value >> 1;
 	fineres = PM8917_IUSB_FINE_RES & usb_ma_table[index].value;
@@ -3612,6 +3631,11 @@ static void handle_usb_insertion_removal(struct pm8921_chg_chip *chip)
 	} else {
 		/* USB unplugged reset target current */
 		usb_target_ma = 0;
+
+/* OPPO 2013-11-06 Wangjc Add begin for solve N1 problem. */
+#ifdef CONFIG_VENDOR_EDIT
+		iusb_counter = 0;
+#endif /*CONFIG_VENDOR_EDIT*/
 		pm8921_chg_disable_irq(chip, CHG_GONE_IRQ);
 	/* OPPO 2012-08-09 chendx Add begin for USBIN charger remove from otg driver */
 	#ifdef CONFIG_VENDOR_EDIT
@@ -4153,7 +4177,21 @@ static void unplug_check_worker(struct work_struct *work)
 	int rc, ibat, active_chg_plugged_in, usb_ma;
 	int chg_gone = 0;
 	bool ramp = false;
+/* OPPO 2013-11-06 Wangjc Add begin for solve N1 problem. */
+#ifdef CONFIG_VENDOR_EDIT
+	if(iusb_counter>5)
+	{
+		iusb_counter--;
+		goto check_again_later;
+	}
+	else if(iusb_counter != 0)
+	{
+		pm_chg_iusbmax_set(chip,2);
+		iusb_counter = 0;
 
+		goto check_again_later;
+	}
+#endif /*CONFIG_VENDOR_EDIT*/
 	rc = pm8xxx_readb(chip->dev->parent, PBL_ACCESS1, &active_path);
 	if (rc) {
 		pr_err("Failed to read PBL_ACCESS1 rc=%d\n", rc);
@@ -5066,6 +5104,10 @@ static int pm8921_battery_temp_handle(struct pm8921_chg_chip *chip)
 	if(rc < 0)
 		return rc;
 	
+/* OPPO 2013-11-13 wangjc Add begin for solve the problem it can't warn in cold temp */
+	temp /= 10;
+/* OPPO 2013-11-13 wangjc Add end */
+	
 	if(temperature > temp) {
 		temperature = temp;
 	}
@@ -5083,7 +5125,7 @@ static int pm8921_battery_temp_handle(struct pm8921_chg_chip *chip)
 	print_pm8921(DEBUG_TRACE, "%s: temperature =%d, region =%d\n", 
 	 		__func__, temperature, Pm8921_battery_temp_region_get(chip));
 	
-    if(temperature < chip->mBatteryTempBoundT0 &&
+    if(temperature <= chip->mBatteryTempBoundT0 &&
 		 temperature > AUTO_CHARGING_BATT_REMOVE_TEMP) /* battery is cold */
     {
             rc = handle_batt_temp_cold(chip);

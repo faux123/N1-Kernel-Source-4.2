@@ -343,7 +343,6 @@ static void msm_fb_set_bl_brightness(struct led_classdev *led_cdev,
 			MAX_BACKLIGHT_BRIGHTNESS - 1) /
 			(MAX_BACKLIGHT_BRIGHTNESS - 1) / 2;
 #else
-        //Neal
         if(get_pcb_version() >= PCB_VERSION_EVT_N1)
         {
         	bl_lvl = value; 
@@ -3522,7 +3521,7 @@ static int msmfb_overlay_set(struct fb_info *info, void __user *p)
 
 	ret = mdp4_overlay_set(info, &req);
 	if (ret) {
-		//printk(KERN_ERR "%s: ioctl failed, rc=%d\n",__func__, ret);
+		printk(KERN_ERR "%s: ioctl failed, rc=%d\n",__func__, ret);
 		return ret;
 	}
 

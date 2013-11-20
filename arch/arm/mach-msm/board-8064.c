@@ -303,6 +303,12 @@ int __init board_pcb_verson_init(char *s)
 		current_pcb_version_num = PCB_VERSION_DVT_N1T;
 	else if (!strcmp(s, "n1t_pvt_td"))
 		current_pcb_version_num = PCB_VERSION_PVT_N1T;
+	else if (!strcmp(s, "n1w_evt"))
+			current_pcb_version_num = PCB_VERSION_EVT_N1W;
+	else if (!strcmp(s, "n1w_dvt"))
+			current_pcb_version_num = PCB_VERSION_DVT_N1W;
+	else if (!strcmp(s, "n1w_pvt"))
+			current_pcb_version_num = PCB_VERSION_PVT_N1W;
 	/*OPPO 2013-08-23 zhangpan add end*/
 
 	return 0;
@@ -1220,8 +1226,15 @@ static struct msm_bus_scale_pdata usb_bus_scale_pdata = {
 };
 
 static int phy_init_seq[] = {
-	0x38, 0x81, /* update DC voltage level */
+/*OPPO,songxh add begain for USB Eye_Diagram ,2013-11-14*/
+#ifndef CONFIG_VENDOR_EDIT	
+	0x38, 0x81, /* update DC voltage level */	
 	0x24, 0x82, /* set pre-emphasis and rise/fall time */
+#else
+       0x33, 0x81, /* update DC voltage level */	
+       0x34, 0x82, /* set pre-emphasis and rise/fall time */
+#endif
+/*OPPO,songxh add end for USB Eye_Diagram ,2013-11-14*/
 	-1
 };
 
@@ -3814,7 +3827,7 @@ struct gpio_keys_button vol_keys_n1[] = {
 		.active_low        = 1,
 		.desc              = "volume_down_key",
 		.type              = EV_KEY,
-		.wakeup            = 1,
+		.wakeup            = 0,
 		.debounce_interval = 20,
 		.can_disable       = true,
 	},
@@ -3824,7 +3837,7 @@ struct gpio_keys_button vol_keys_n1[] = {
 		.active_low        = 0,
 		.desc              = "volume_up_key",
 		.type              = EV_KEY,
-		.wakeup            = 1,
+		.wakeup            = 0,
 		.debounce_interval = 20,
 		.can_disable       = true,
 	},

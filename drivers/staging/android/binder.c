@@ -1409,6 +1409,7 @@ static void binder_transaction_buffer_release(struct binder_proc *proc,
 
 #ifdef CONFIG_VENDOR_EDIT
 //VENDOR_EDIT: peirs add for debug binder transaction failed, 2013.05.18:
+/*
 static char* binder_debug_get_error_code_str(int error_code)
 {
 	char *code_str;
@@ -1493,6 +1494,7 @@ static char* binder_debug_get_error_code_str(int error_code)
 
 	return code_str;
 }
+*/
 #endif /* VENDOR_EDIT */
 
 
@@ -1899,10 +1901,6 @@ err_no_context_mgr_node:
 		     "binder: %d:%d transaction failed %d, size %zd-%zd\n",
 		     proc->pid, thread->pid, return_error,
 		     tr->data_size, tr->offsets_size);
-	#ifdef CONFIG_VENDOR_EDIT
-	//VENDOR_EDIT: peirs add for debug binder transaction failed, 2013.05.18:
-	printk_ratelimited(KERN_ERR "peirs debug:binder:error code:%d, code-str:%s, end\n", return_error, binder_debug_get_error_code_str(return_error));
-	#endif /* VENDOR_EDIT */
 
 	{
 		struct binder_transaction_log_entry *fe;

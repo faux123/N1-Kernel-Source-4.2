@@ -57,9 +57,7 @@ static irqreturn_t pwrkey_press_irq(int irq, void *_pwrkey)
 	}
 #endif
 /*OPPO yuyi 2013-10-11 delete end for detecting power_key when phone power on */
-	printk("yuyi,pwrkey_press_irq  begin\n");
 	input_report_key(pwrkey->pwr, KEY_POWER, 1);
-	printk("yuyi,pwrkey_press_irq  end\n");
 	input_sync(pwrkey->pwr);
 
 	return IRQ_HANDLED;
@@ -79,9 +77,7 @@ static irqreturn_t pwrkey_release_irq(int irq, void *_pwrkey)
 	}
 #endif
 /*OPPO yuyi 2013-10-11 delete end for detecting power_key when phone power on */
-    printk("yuyi,pwrkey_release_irq b begin\n");
 	input_report_key(pwrkey->pwr, KEY_POWER, 0);
-	printk("yuyi,pwrkey_release_irq b end\n");
 	input_sync(pwrkey->pwr);
 
 	return IRQ_HANDLED;

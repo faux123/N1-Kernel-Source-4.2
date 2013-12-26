@@ -571,11 +571,23 @@ _kgsl_sharedmem_page_alloc(struct kgsl_memdesc *memdesc,
 	memdesc->pagetable = pagetable;
 	memdesc->ops = &kgsl_page_alloc_ops;
 
+/* OPPO 2013-12-02 gousj Modify begin for kfree error */
+#ifndef CONFIG_VENDOR_EDIT
 	memdesc->sg = kgsl_sg_alloc(sglen_alloc);
+#else
+	memdesc->sglen_alloc = sglen_alloc;
+	memdesc->sg = kgsl_sg_alloc(memdesc->sglen_alloc);
+#endif
+/* OPPO 2013-12-02 gousj Modify end */
+	
 
 	if (memdesc->sg == NULL) {
+/* OPPO 2013-12-02 gousj Delete begin for kfree error */
+#if 0
 		KGSL_CORE_ERR("vmalloc(%d) failed\n",
 			sglen_alloc * sizeof(struct scatterlist));
+#endif
+/* OPPO 2013-12-02 gousj Delete end */
 		ret = -ENOMEM;
 		goto done;
 	}
@@ -587,11 +599,22 @@ _kgsl_sharedmem_page_alloc(struct kgsl_memdesc *memdesc,
 	 * two pages; well within the acceptable limits for using kmalloc.
 	 */
 
+/* OPPO 2013-12-02 gousj Modify begin for kfree error */
+#ifndef CONFIG_VENDOR_EDIT
 	pages = kmalloc(sglen_alloc * sizeof(struct page *), GFP_KERNEL);
+#else
+	pages = kmalloc(memdesc->sglen_alloc * sizeof(struct page *),
+		GFP_KERNEL);
+#endif
+/* OPPO 2013-12-02 gousj Modify end */
 
 	if (pages == NULL) {
+/* OPPO 2013-12-02 gousj Delete begin for kfree error */
+#if 0
 		KGSL_CORE_ERR("kmalloc (%d) failed\n",
 			sglen_alloc * sizeof(struct page *));
+#endif
+/* OPPO 2013-12-02 gousj Delete end */
 		ret = -ENOMEM;
 		pr_info("Neal %s kmalloc failed!\n",__func__);
 		goto done;
@@ -599,8 +622,14 @@ _kgsl_sharedmem_page_alloc(struct kgsl_memdesc *memdesc,
 
 	kmemleak_not_leak(memdesc->sg);
 
+/* OPPO 2013-12-02 gousj Modify begin for kfree error */
+#ifndef CONFIG_VENDOR_EDIT
 	memdesc->sglen_alloc = sglen_alloc;
 	sg_init_table(memdesc->sg, sglen_alloc);
+#else
+	sg_init_table(memdesc->sg, memdesc->sglen_alloc);
+#endif
+/* OPPO 2013-12-02 gousj Modify end */
 
 	len = size;
 
@@ -715,13 +744,8 @@ _kgsl_sharedmem_page_alloc(struct kgsl_memdesc *memdesc,
 		kgsl_driver.stats.histogram[order]++;
 
 done:
-/* OPPO 2013-10-16 gousj Modify begin for incorrect memory free caused system crash */
-#ifndef CONFIG_VENDOR_EDIT
+
 	kfree(pages);
-#else
-	kfree(&(*pages));
-#endif
-/* OPPO 2013-10-16 gousj Modify end */
 
 	if (ret)
 		kgsl_sharedmem_free(memdesc);

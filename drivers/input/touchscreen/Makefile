@@ -107,6 +107,14 @@ ifeq ($(INIT_DEVICE_N1W), true)
 	obj-$(CONFIG_TOUCHSCREEN_BKTP) += touch_y8c20x66a.o
 endif
 
+# ranfei add for N1W_CU
+ifeq ($(INIT_DEVICE_N1W_CU), true)
+	obj-$(CONFIG_TOUCHSCREEN_SYNAPTICS_S3202_I2C_RMI) += synaptics_s3202_i2c_rmi_n1.o
+	obj-$(CONFIG_TOUCHSCREEN_SYNAPTICS_S3202_I2C_RMI) += synaptics_update_firmware_n1.o
+#	obj-$(CONFIG_TOUCHSCREEN_SYNAPTICS_S3202_I2C_RMI) += synaptics_dsx_rmi_dev.o
+	obj-$(CONFIG_TOUCHSCREEN_BKTP) += touch_y8c20x66a.o
+endif
+
 ifeq ($(INIT_DEVICE_X909), true)
 	obj-$(CONFIG_TOUCHSCREEN_SYNAPTICS_S3202_I2C_RMI) += synaptics_s3202_i2c_rmi.o
 	obj-$(CONFIG_TOUCHSCREEN_SYNAPTICS_S3202_I2C_RMI) += synaptics_update_firmware.o

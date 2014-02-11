@@ -3827,7 +3827,12 @@ struct gpio_keys_button vol_keys_n1[] = {
 		.active_low        = 1,
 		.desc              = "volume_down_key",
 		.type              = EV_KEY,
+#ifndef CONFIG_VENDOR_EDIT
+//ZhangPan@Mobile Phone Software Dept.Driver, 2013/12/27, Modify for Air gesture
 		.wakeup            = 0,
+#else /* CONFIG_VENDOR_EDIT */
+		.wakeup            = 1,
+#endif /* CONFIG_VENDOR_EDIT */
 		.debounce_interval = 20,
 		.can_disable       = true,
 	},
@@ -3837,7 +3842,12 @@ struct gpio_keys_button vol_keys_n1[] = {
 		.active_low        = 0,
 		.desc              = "volume_up_key",
 		.type              = EV_KEY,
-		.wakeup            = 0,
+#ifndef CONFIG_VENDOR_EDIT
+//ZhangPan@Mobile Phone Software Dept.Driver, 2013/12/27, Modify for Air gesture
+		.wakeup 		   = 0,
+#else /* CONFIG_VENDOR_EDIT */
+		.wakeup 		   = 1,
+#endif /* CONFIG_VENDOR_EDIT */
 		.debounce_interval = 20,
 		.can_disable       = true,
 	},

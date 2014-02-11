@@ -509,6 +509,11 @@ static int msm_rotator_get_plane_sizes(uint32_t format,	uint32_t w, uint32_t h,
 uint32_t fast_yuv_invalid_size_checker(unsigned char rot_mode,
 						uint32_t src_width,
 						uint32_t dst_width,
+/* OPPO 2014-01-08 gousj Add begin for flip can not play  */
+#ifdef CONFIG_VENDOR_EDIT
+						uint32_t src_height,
+#endif
+/* OPPO 2014-01-08 gousj Add end */
 						uint32_t dst_height,
 						uint32_t dstp0_ystride,
 						uint32_t is_planar420)
@@ -522,6 +527,12 @@ uint32_t fast_yuv_invalid_size_checker(unsigned char rot_mode,
 		return -EINVAL;
 
 	if (rot_mode & MDP_ROT_90) {
+/* OPPO 2014-01-08 gousj Add begin for flip can not play */
+#ifdef CONFIG_VENDOR_EDIT
+		if ((src_height % 128) == 8)
+			return -EINVAL;
+#endif
+/* OPPO 2014-01-08 gousj Add end */
 
 		/* if rotation 90 degree on fast yuv
 		 * rotator image input width has to be multiple of 8
@@ -575,9 +586,15 @@ uint32_t fast_yuv_invalid_size_checker(unsigned char rot_mode,
 	} else {
 		/* if NOT applying rotation 90 degree on fast yuv,
 		 * rotator image input width has to be multiple of 8
-		 * rotator image input height has to be multiple of 2
+		 * rotator image input height has to be multiple of 8
 		*/
+/* OPPO 2014-01-08 gousj Modify begin for flip can not play */
+#ifndef CONFIG_VENDOR_EDIT
 		if (((dst_width % 8) != 0) || ((dst_height % 2) != 0))
+#else
+		if (((dst_width % 8) != 0) || ((dst_height % 8) != 0))
+#endif
+/* OPPO 2014-01-08 gousj Modify end */
 			return -EINVAL;
 	}
 
@@ -1532,7 +1549,13 @@ static int msm_rotator_start(unsigned long arg,
 			fast_yuv_en = !fast_yuv_invalid_size_checker(
 						info.rotations,
 						info.src.width,
+
 						dst_w,
+/* OPPO 2014-01-08 gousj Add begin for flip can not play */
+#ifdef CONFIG_VENDOR_EDIT
+						info.src.height,
+#endif
+/* OPPO 2014-01-08 gousj Add end */
 						dst_h,
 						dst_w,
 						is_planar420);

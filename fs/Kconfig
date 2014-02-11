@@ -280,4 +280,9 @@ endif # NETWORK_FILESYSTEMS
 source "fs/nls/Kconfig"
 source "fs/dlm/Kconfig"
 
+#ifdef VENDOR_EDIT
+#added by oppo songxh for exfat filesystem
+source "fs/exfat/Kconfig"
+#endif /*VENDOR_EDIT*/
+
 endmenu
